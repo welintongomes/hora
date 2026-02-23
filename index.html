@@ -5,10 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Carga Horária</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap"
-        rel="stylesheet">
+
     <style>
         :root {
             --bg: #f5f5f7;
@@ -274,7 +271,7 @@
             color: var(--text-primary);
             background: var(--surface2);
             transition: border-color 0.2s, box-shadow 0.2s;
-            -webkit-appearance: none;
+            /*-webkit-appearance: none;*/
         }
 
         .finance-item input:focus {
@@ -320,7 +317,7 @@
             color: var(--text-primary);
             background: var(--surface2);
             transition: border-color 0.2s, box-shadow 0.2s;
-            -webkit-appearance: none;
+            /*-webkit-appearance: none;*/
         }
 
         .form-group input:focus {
@@ -794,9 +791,24 @@
             display: none;
         }
 
+        /* Aba Geral é somente leitura - esconde cards de input via CSS */
+        #tabContent-0 #card-input-finance,
+        #tabContent-0 #card-input-servicos,
+        #tabContent-0 #card-input-registro {
+            display: none;
+        }
+
+        /* Quando a aba Geral estiver ativa */
+        #tabContent-0.active~.export-buttons button[onclick="importarTXT()"],
+        #tabContent-0.active~.export-buttons button[onclick="limparTodos()"] {
+            display: none;
+        }
+
+
         /* Responsive */
         @media (max-width: 640px) {
             body {
+                font-family: cursive;
                 padding: 20px 14px;
             }
 
@@ -864,7 +876,7 @@
 
         <div class="app-header">
             <h1>Controle de Horas</h1>
-            <p>Registro e acompanhamento de carga horária</p>
+            <!-- <p>Registro e acompanhamento de carga horária</p> -->
         </div>
 
         <!-- Tabs -->
@@ -877,7 +889,7 @@
         <div class="tab-content active" id="tabContent-0">
 
             <!-- Configurações Financeiras -->
-            <div class="card">
+            <div class="card" id="card-input-finance">
                 <div class="card-header" onclick="toggleCard('finance-0')">
                     <div class="card-header-left">
                         <div class="card-icon icon-blue">💰</div>
@@ -888,29 +900,30 @@
                         <path d="M5 8l5 5 5-5" />
                     </svg>
                 </div>
-                <div class="card-body expanded" id="card-finance-0">
+                <div class="card-body" id="card-finance-0">
                     <div class="divider"></div>
                     <div class="finance-grid">
                         <div class="finance-item">
-                            <label>Valor Hora (R$)</label>
-                            <input type="number" class="valorHora" data-aba="0" step="0.01" min="0" placeholder="0,00">
+                            <label for="valorHora-0">Valor Hora (R$)</label>
+                            <input id="valorHora-0" name="valorHora-0" type="number" class="valorHora" data-aba="0"
+                                step="0.01" min="0" placeholder="0,00">
                         </div>
                         <div class="finance-item">
-                            <label>Adiantamento (R$)</label>
-                            <input type="number" class="valorVale" data-aba="0" step="0.01" min="0" placeholder="0,00"
-                                class="red-val">
+                            <label for="valorVale-0">Adiantamento (R$)</label>
+                            <input id="valorVale-0" name="valorVale-0" type="number" class="valorVale" data-aba="0"
+                                step="0.01" min="0" placeholder="0,00">
                         </div>
                         <div class="finance-item">
-                            <label>Saldo ± (R$)</label>
-                            <input type="number" class="saldoAnterior" data-aba="0" step="0.01" placeholder="0,00"
-                                class="blue-val">
+                            <label for="saldoAnterior-0">Saldo ± (R$)</label>
+                            <input id="saldoAnterior-0" name="saldoAnterior-0" type="number" class="saldoAnterior"
+                                data-aba="0" step="0.01" placeholder="0,00">
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Serviços Extras -->
-            <div class="card">
+            <div class="card" id="card-input-servicos">
                 <div class="card-header" onclick="toggleCard('servicos-0')">
                     <div class="card-header-left">
                         <div class="card-icon icon-green">✦</div>
@@ -927,21 +940,22 @@
                         <!-- Hidden collapsible elements for JS compat -->
                         <div id="servicosExtras-0" class="collapsible-content expanded" style="display:contents;">
                             <div class="form-group">
-                                <label>Descrição do Serviço</label>
-                                <input type="text" class="descricaoServico" data-aba="0"
-                                    placeholder="Ex: Polimento extra"
+                                <label for="descricaoServico-0">Descrição do Serviço</label>
+                                <input id="descricaoServico-0" name="descricaoServico-0" type="text"
+                                    class="descricaoServico" data-aba="0" placeholder="Ex: Polimento extra"
                                     style="padding:10px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem; font-family:inherit; background:var(--surface2);">
                             </div>
                             <div class="time-inputs">
                                 <div class="form-group">
-                                    <label>Data</label>
-                                    <input type="date" class="dataServico" data-aba="0"
+                                    <label for="dataServico-0">Data</label>
+                                    <input id="dataServico-0" name="dataServico-0" type="date" class="dataServico"
+                                        data-aba="0"
                                         style="padding:10px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem; font-family:inherit; background:var(--surface2);">
                                 </div>
                                 <div class="form-group">
-                                    <label>Valor (R$)</label>
-                                    <input type="number" class="valorServico" data-aba="0" step="0.01" min="0"
-                                        placeholder="0,00"
+                                    <label for="valorServico-0">Valor (R$)</label>
+                                    <input id="valorServico-0" name="valorServico-0" type="number" class="valorServico"
+                                        data-aba="0" step="0.01" min="0" placeholder="0,00"
                                         style="padding:10px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem; font-family:inherit; background:var(--surface2);">
                                 </div>
                             </div>
@@ -954,7 +968,7 @@
             </div>
 
             <!-- Registrar Dia -->
-            <div class="card">
+            <div class="card" id="card-input-registro">
                 <div class="card-header" onclick="toggleCard('registro-0')">
                     <div class="card-header-left">
                         <div class="card-icon icon-orange">📅</div>
@@ -965,32 +979,35 @@
                         <path d="M5 8l5 5 5-5" />
                     </svg>
                 </div>
-                <div class="card-body expanded" id="card-registro-0">
+                <div class="card-body" id="card-registro-0">
                     <div class="divider"></div>
                     <div class="card-body-inner">
                         <!-- hidden compat -->
                         <div id="formRegistro-0" class="collapsible-content expanded" style="display:contents;">
                             <span class="arrow expanded" id="arrow-formRegistro-0" style="display:none;"></span>
                             <div class="form-group">
-                                <label>Data</label>
-                                <input type="date" class="data" data-aba="0" required>
+                                <label for="data-0">Data</label>
+                                <input id="data-0" name="data-0" type="date" class="data" data-aba="0" required>
                             </div>
                             <div class="time-inputs">
                                 <div class="form-group">
-                                    <label>Entrada</label>
-                                    <input type="time" class="entrada" data-aba="0" required>
+                                    <label for="entrada-0">Entrada</label>
+                                    <input id="entrada-0" name="entrada-0" type="time" class="entrada" data-aba="0"
+                                        required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Saída</label>
-                                    <input type="time" class="saida" data-aba="0" required>
+                                    <label for="saida-0">Saída</label>
+                                    <input id="saida-0" name="saida-0" type="time" class="saida" data-aba="0" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Intervalo Almoço</label>
-                                    <input type="time" class="almoco" data-aba="0" value="01:00">
+                                    <label for="almoco-0">Intervalo Almoço</label>
+                                    <input id="almoco-0" name="almoco-0" type="time" class="almoco" data-aba="0"
+                                        value="01:00">
                                 </div>
                                 <div class="form-group">
-                                    <label>Intervalo Café</label>
-                                    <input type="time" class="cafe" data-aba="0" value="00:15">
+                                    <label for="cafe-0">Intervalo Café</label>
+                                    <input id="cafe-0" name="cafe-0" type="time" class="cafe" data-aba="0"
+                                        value="00:15">
                                 </div>
                             </div>
                         </div>
@@ -1612,6 +1629,8 @@
             let totalMinutosGlobal = 0;
             let totalValorGlobal = 0;
             let totalServicosGlobal = 0;
+            let totalAdiantamentoGlobal = 0;  // NOVO
+            let totalLiquidoGlobal = 0;       // NOVO
 
             // Percorre cada aba de cliente
             abas.filter(a => a.id !== 0).forEach(aba => {
@@ -1637,6 +1656,8 @@
                 totalMinutosGlobal += totalMinutosCliente;
                 totalValorGlobal += valorHorasCliente;
                 totalServicosGlobal += totalServicosCliente;
+                totalAdiantamentoGlobal += valorVale;    // NOVO
+                totalLiquidoGlobal += liquidoCliente;    // NOVO
 
                 registrosCliente.sort((a, b) => new Date(b.data) - new Date(a.data));
 
@@ -1701,22 +1722,30 @@
                 totalHorasEl.style.display = 'block';
                 const totalGlobalReceber = totalValorGlobal + totalServicosGlobal;
                 totalHorasEl.innerHTML = `
-            <div class="summary-label">Resumo Geral — Todos os Clientes</div>
-            <div class="summary-main">${minutesToTime(totalMinutosGlobal)} <span style="font-size:0.65em;font-weight:400;color:var(--text-secondary)">${abas.filter(a => a.id !== 0).length} cliente(s)</span></div>
-            <div class="summary-grid">
-                <div class="summary-chip chip-green">
-                    <div class="chip-label">Total Horas</div>
-                    <div class="chip-val">R$ ${totalValorGlobal.toFixed(2)}</div>
+                <div class="summary-label">Resumo Geral — Todos os Clientes</div>
+                <div class="summary-main">${minutesToTime(totalMinutosGlobal)} <span style="font-size:0.65em;font-weight:400;color:var(--text-secondary)">${abas.filter(a => a.id !== 0).length} cliente(s)</span></div>
+                <div class="summary-grid">
+                    <div class="summary-chip chip-green">
+                        <div class="chip-label">Total Horas</div>
+                        <div class="chip-val">R$ ${totalValorGlobal.toFixed(2)}</div>
+                    </div>
+                    ${totalServicosGlobal > 0 ? `<div class="summary-chip chip-green">
+                        <div class="chip-label">Serviços Extras</div>
+                        <div class="chip-val">R$ ${totalServicosGlobal.toFixed(2)}</div>
+                    </div>` : ''}
+                    <div class="summary-chip chip-blue">
+                        <div class="chip-label">Total Bruto</div>
+                        <div class="chip-val">R$ ${(totalValorGlobal + totalServicosGlobal).toFixed(2)}</div>
+                    </div>
+                    ${totalAdiantamentoGlobal > 0 ? `<div class="summary-chip chip-red">
+                        <div class="chip-label">Total Adiantamentos</div>
+                        <div class="chip-val">− R$ ${totalAdiantamentoGlobal.toFixed(2)}</div>
+                    </div>` : ''}
                 </div>
-                ${totalServicosGlobal > 0 ? `<div class="summary-chip chip-green">
-                    <div class="chip-label">Serviços Extras</div>
-                    <div class="chip-val">R$ ${totalServicosGlobal.toFixed(2)}</div>
-                </div>` : ''}
-                <div class="summary-chip chip-blue">
-                    <div class="chip-label">Total a Receber</div>
-                    <div class="chip-val">R$ ${totalGlobalReceber.toFixed(2)}</div>
-                </div>
-            </div>`;
+                <div class="liquido-highlight">
+                    <span class="liq-label">💵 resultado final</span>
+                    <span class="liq-val">R$ ${totalLiquidoGlobal.toFixed(2)}</span>
+                </div>`;
             }
         }
 
@@ -1819,74 +1848,74 @@
         }
 
         function exportarTodosTXT(todosRegistros) {
-    let conteudo = 'CONTROLE DE CARGA HORÁRIA — EXPORTAÇÃO COMPLETA\n' + '='.repeat(80) + '\n\n';
-    let totalGeralMinutos = 0;
-    let totalGeralValor = 0;
+            let conteudo = 'CONTROLE DE CARGA HORÁRIA — EXPORTAÇÃO COMPLETA\n' + '='.repeat(80) + '\n\n';
+            let totalGeralMinutos = 0;
+            let totalGeralValor = 0;
 
-    abas.filter(a => a.id !== 0).forEach(aba => {
-        const registros = todosRegistros.filter(r => r.abaId === aba.id);
-        if (registros.length === 0) return;
+            abas.filter(a => a.id !== 0).forEach(aba => {
+                const registros = todosRegistros.filter(r => r.abaId === aba.id);
+                if (registros.length === 0) return;
 
-        const config = localStorage.getItem(`config_aba_${aba.id}`);
-        let valorHora = 0, valorVale = 0, saldoAnterior = 0;
-        if (config) {
-            const d = JSON.parse(config);
-            valorHora = parseFloat(d.valorHora) || 0;
-            valorVale = parseFloat(d.valorVale) || 0;
-            saldoAnterior = parseFloat(d.saldoAnterior) || 0;
-        }
+                const config = localStorage.getItem(`config_aba_${aba.id}`);
+                let valorHora = 0, valorVale = 0, saldoAnterior = 0;
+                if (config) {
+                    const d = JSON.parse(config);
+                    valorHora = parseFloat(d.valorHora) || 0;
+                    valorVale = parseFloat(d.valorVale) || 0;
+                    saldoAnterior = parseFloat(d.saldoAnterior) || 0;
+                }
 
-        const servicosAba = Array.isArray(servicos[String(aba.id)]) ? servicos[String(aba.id)] : [];
-        let totalServicos = servicosAba.reduce((s, x) => s + x.valor, 0);
+                const servicosAba = Array.isArray(servicos[String(aba.id)]) ? servicos[String(aba.id)] : [];
+                let totalServicos = servicosAba.reduce((s, x) => s + x.valor, 0);
 
-        conteudo += `CLIENTE: ${aba.nome.toUpperCase()}\n` + '='.repeat(80) + '\n';
-        if (valorHora > 0) conteudo += `Valor por Hora: R$ ${valorHora.toFixed(2)}\n`;
-        if (valorVale > 0) conteudo += `Vale/Adiantamento: R$ ${valorVale.toFixed(2)}\n`;
-        if (saldoAnterior !== 0) conteudo += `Saldo Anterior: R$ ${saldoAnterior.toFixed(2)}\n`;
-        conteudo += '-'.repeat(80) + '\n';
+                conteudo += `CLIENTE: ${aba.nome.toUpperCase()}\n` + '='.repeat(80) + '\n';
+                if (valorHora > 0) conteudo += `Valor por Hora: R$ ${valorHora.toFixed(2)}\n`;
+                if (valorVale > 0) conteudo += `Vale/Adiantamento: R$ ${valorVale.toFixed(2)}\n`;
+                if (saldoAnterior !== 0) conteudo += `Saldo Anterior: R$ ${saldoAnterior.toFixed(2)}\n`;
+                conteudo += '-'.repeat(80) + '\n';
 
-        registros.sort((a, b) => new Date(a.data) - new Date(b.data));
-        let totalMinutos = 0;
+                registros.sort((a, b) => new Date(a.data) - new Date(b.data));
+                let totalMinutos = 0;
 
-        registros.forEach(reg => {
-            totalMinutos += reg.totalMinutos;
-            const valorDia = valorHora > 0 ? (reg.totalMinutos / 60) * valorHora : 0;
-            conteudo += `Data: ${new Date(reg.data+'T00:00:00').toLocaleDateString('pt-BR')} (${reg.diaSemana})\n`;
-            conteudo += `Entrada: ${reg.entrada} | Saída: ${reg.saida}\n`;
-            conteudo += `Almoço: ${reg.almoco} | Café: ${reg.cafe}\n`;
-            conteudo += `Horas Trabalhadas: ${reg.horasTrabalhadas}\n`;
-            if (valorHora > 0) conteudo += `Valor do Dia: R$ ${valorDia.toFixed(2)}\n`;
-            conteudo += '-'.repeat(40) + '\n';
-        });
+                registros.forEach(reg => {
+                    totalMinutos += reg.totalMinutos;
+                    const valorDia = valorHora > 0 ? (reg.totalMinutos / 60) * valorHora : 0;
+                    conteudo += `Data: ${new Date(reg.data + 'T00:00:00').toLocaleDateString('pt-BR')} (${reg.diaSemana})\n`;
+                    conteudo += `Entrada: ${reg.entrada} | Saída: ${reg.saida}\n`;
+                    conteudo += `Almoço: ${reg.almoco} | Café: ${reg.cafe}\n`;
+                    conteudo += `Horas Trabalhadas: ${reg.horasTrabalhadas}\n`;
+                    if (valorHora > 0) conteudo += `Valor do Dia: R$ ${valorDia.toFixed(2)}\n`;
+                    conteudo += '-'.repeat(40) + '\n';
+                });
 
-        if (servicosAba.length > 0) {
-            conteudo += '\nSERVIÇOS EXTRAS:\n';
-            servicosAba.forEach(s => {
-                conteudo += `Data: ${new Date(s.data+'T00:00:00').toLocaleDateString('pt-BR')} (${s.diaSemana})\n`;
-                conteudo += `Serviço: ${s.descricao}\nValor: R$ ${s.valor.toFixed(2)}\n` + '-'.repeat(40) + '\n';
+                if (servicosAba.length > 0) {
+                    conteudo += '\nSERVIÇOS EXTRAS:\n';
+                    servicosAba.forEach(s => {
+                        conteudo += `Data: ${new Date(s.data + 'T00:00:00').toLocaleDateString('pt-BR')} (${s.diaSemana})\n`;
+                        conteudo += `Serviço: ${s.descricao}\nValor: R$ ${s.valor.toFixed(2)}\n` + '-'.repeat(40) + '\n';
+                    });
+                    conteudo += `TOTAL SERVIÇOS EXTRAS: R$ ${totalServicos.toFixed(2)}\n`;
+                }
+
+                const valorTotal = (totalMinutos / 60) * valorHora;
+                const liquido = valorTotal + totalServicos + saldoAnterior - valorVale;
+                totalGeralMinutos += totalMinutos;
+                totalGeralValor += liquido;
+
+                conteudo += `\nTOTAL HORAS: ${minutesToTime(totalMinutos)} | LÍQUIDO: R$ ${liquido.toFixed(2)}\n`;
+                conteudo += '='.repeat(80) + '\n\n';
             });
-            conteudo += `TOTAL SERVIÇOS EXTRAS: R$ ${totalServicos.toFixed(2)}\n`;
+
+            conteudo += `TOTAL GERAL: ${minutesToTime(totalGeralMinutos)} | TOTAL A RECEBER: R$ ${totalGeralValor.toFixed(2)}\n`;
+
+            const blob = new Blob([conteudo], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `controle_horas_COMPLETO_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '_')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
-
-        const valorTotal = (totalMinutos / 60) * valorHora;
-        const liquido = valorTotal + totalServicos + saldoAnterior - valorVale;
-        totalGeralMinutos += totalMinutos;
-        totalGeralValor += liquido;
-
-        conteudo += `\nTOTAL HORAS: ${minutesToTime(totalMinutos)} | LÍQUIDO: R$ ${liquido.toFixed(2)}\n`;
-        conteudo += '='.repeat(80) + '\n\n';
-    });
-
-    conteudo += `TOTAL GERAL: ${minutesToTime(totalGeralMinutos)} | TOTAL A RECEBER: R$ ${totalGeralValor.toFixed(2)}\n`;
-
-    const blob = new Blob([conteudo], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `controle_horas_COMPLETO_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'_')}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-}
 
         function importarTXT() {
             const fileInput = document.querySelector(`.fileInput[data-aba="${abaAtual}"]`);
