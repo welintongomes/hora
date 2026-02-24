@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Carga Horária</title>
-
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23007AFF'/%3E%3Cpath d='M14 16h20v3H14zM14 22.5h20v3H14zM14 29h14v3H14z' fill='white'/%3E%3C/svg%3E">
     <style>
         :root {
             --bg: #f5f5f7;
@@ -812,6 +813,8 @@
                 padding: 20px 14px;
             }
 
+
+
             .app-header h1 {
                 font-size: 1.5rem;
             }
@@ -845,6 +848,75 @@
                 padding: 22px;
                 margin: 15% auto;
             }
+
+            .tab {
+                padding: 8px 30px;
+                /* background: var(--surface); */
+                border: 1.5px solid var(--border);
+                border-radius: 30px;
+                cursor: pointer;
+                font-weight: 500;
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                transition: all 0.2s ease;
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                font-family: inherit;
+            }
+
+            .tabs-container {
+                max-width: stretch;
+                overflow-x: scroll;
+                position: fixed;
+                bottom: 20px;
+                right: 4%;
+                left: 4%;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(20px);
+                padding: 10px 10px;
+                border-radius: 100px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                z-index: 9999;
+            }
+
+            .container {
+                border-radius: 22px;
+                overflow-y: scroll;
+                max-height: 662px;
+                margin: 0 auto;
+            }
+
+            .registros {
+                overflow-y: scroll;
+                max-height: 300px;
+                margin-top: 0;
+            }
+
+            .export-buttons {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-top: 12px;
+                padding-top: 9px;
+                border-top: 1.5px solid var(--border);
+            }
+
+            .card-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 22px;
+                cursor: pointer;
+                user-select: none;
+                transition: background 0.15s;
+            }
+
         }
 
         /* Collapsible compat */
@@ -879,11 +951,7 @@
             <!-- <p>Registro e acompanhamento de carga horária</p> -->
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs-container" id="tabsContainer">
-            <button class="tab active" onclick="selecionarAba(0)" data-tab="0">Geral</button>
-            <button class="tab tab-add" onclick="adicionarNovaAba()" title="Adicionar Cliente/Serviço">+</button>
-        </div>
+
 
         <!-- Aba Geral -->
         <div class="tab-content active" id="tabContent-0">
@@ -1050,11 +1118,15 @@
 
         </div>
         <!-- Fim tab-content -->
-
+        <!-- Tabs -->
+        <div class="tabs-container" id="tabsContainer">
+            <button class="tab active" onclick="selecionarAba(0)" data-tab="0">Geral</button>
+            <button class="tab tab-add" onclick="adicionarNovaAba()" title="Adicionar Cliente/Serviço">+</button>
+        </div>
         <div class="export-buttons">
-            <button class="btn-ghost" onclick="exportarTXT()">↓ Exportar TXT</button>
-            <button class="btn-ghost" onclick="importarTXT()">↑ Importar TXT</button>
-            <button class="btn-danger" onclick="limparTodos()">Limpar Todos</button>
+            <button class="btn-ghost" onclick="exportarTXT()">↓ Exportar</button>
+            <button class="btn-ghost" onclick="importarTXT()">↑ Importar</button>
+            <button class="btn-danger" onclick="limparTodos()">Limpar</button>
         </div>
 
     </div>
@@ -1210,9 +1282,15 @@
             novoConteudo.id = `tabContent-${idAba}`;
             novoConteudo.className = 'tab-content';
 
+            // Substitui todos os -0 nos IDs
             novoConteudo.querySelectorAll('[id]').forEach(el => {
-                // Replace ALL occurrences of -0 in the id (handles card-finance-0, chevron-finance-0, etc.)
                 el.id = el.id.replace(/-0(-|$)/g, `-${idAba}$1`);
+            });
+
+            // Remove IDs exclusivos da aba Geral para não serem afetados pelo CSS
+            ['card-input-finance', 'card-input-servicos', 'card-input-registro'].forEach(idRemover => {
+                const el = novoConteudo.querySelector(`#${idRemover}`);
+                if (el) el.removeAttribute('id');
             });
 
             novoConteudo.querySelectorAll('[data-aba]').forEach(el => {
@@ -1222,6 +1300,12 @@
             novoConteudo.querySelectorAll('.card-header').forEach(header => {
                 const onclick = header.getAttribute('onclick');
                 if (onclick) header.setAttribute('onclick', onclick.replace(/-0(-|'|"|\))/g, `-${idAba}$1`));
+            });
+
+            // Atualiza os for dos labels para apontar para os novos IDs
+            novoConteudo.querySelectorAll('label[for]').forEach(label => {
+                const forAttr = label.getAttribute('for');
+                label.setAttribute('for', forAttr.replace(/-0$/, `-${idAba}`));
             });
 
             const listaRegistros = novoConteudo.querySelector(`#listaRegistros-${idAba}`);
@@ -1235,6 +1319,10 @@
 
             const totalHoras = novoConteudo.querySelector(`#totalHoras-${idAba}`);
             if (totalHoras) totalHoras.style.display = 'none';
+
+            // Recolhe todos os cards por padrão
+            novoConteudo.querySelectorAll('.card-body').forEach(el => el.classList.remove('expanded'));
+            novoConteudo.querySelectorAll('.card-chevron').forEach(el => el.classList.remove('expanded'));
 
             novoConteudo.querySelectorAll('input').forEach(input => {
                 if (input.type === 'number' || input.type === 'text') input.value = '';
@@ -1373,23 +1461,29 @@
                 if (idx !== -1) lista[idx] = { id: servicoEditandoId, descricao, valor, data, diaSemana };
                 setServicosAba(lista);
                 servicoEditandoId = null;
-                const btnAdd = document.querySelector(`.btn-add-servico[data-aba="${abaAtual}"]`) || document.querySelector('.btn-add-servico');
+                // Corrigido: busca o botão pela aba atual, não o primeiro da página
+                const btnAdd = document.querySelector(`#tabContent-${abaAtual} .btn-add-servico`);
                 if (btnAdd) btnAdd.textContent = '+ Adicionar Serviço';
             } else {
                 lista.push({ id: Date.now(), descricao, valor, data, diaSemana });
                 setServicosAba(lista);
             }
 
-            salvarServicos(); exibirServicos(); carregarRegistros();
-            descEl.value = ''; valEl.value = ''; datEl.value = '';
+            salvarServicos();
+            exibirServicos();
+            carregarRegistros();
+            descEl.value = '';
+            valEl.value = '';
+            datEl.value = '';
         }
+
 
         function editarServico(id) {
             const servicosAba = getServicosAba();
             const servico = servicosAba.find(s => s.id === id);
             if (!servico) return;
 
-            // Open the card if not open
+            // Abre o card de serviços da aba atual
             const cardBody = document.getElementById(`card-servicos-${abaAtual}`);
             const chevron = document.getElementById(`chevron-servicos-${abaAtual}`);
             if (cardBody && !cardBody.classList.contains('expanded')) {
@@ -1397,12 +1491,17 @@
                 if (chevron) chevron.classList.add('expanded');
             }
 
-            const set = (sel, val) => { const el = document.querySelector(`${sel}[data-aba="${abaAtual}"]`); if (el) el.value = val; };
-            set('.descricaoServico', servico.descricao);
-            set('.valorServico', servico.valor);
-            set('.dataServico', servico.data);
+            const descEl = document.querySelector(`.descricaoServico[data-aba="${abaAtual}"]`);
+            const valEl = document.querySelector(`.valorServico[data-aba="${abaAtual}"]`);
+            const datEl = document.querySelector(`.dataServico[data-aba="${abaAtual}"]`);
 
-            document.querySelector('.btn-add-servico').textContent = '💾 Salvar Alterações';
+            if (descEl) descEl.value = servico.descricao;
+            if (valEl) valEl.value = servico.valor;
+            if (datEl) datEl.value = servico.data;
+
+            // Corrigido: busca o botão da aba atual
+            const btnAdd = document.querySelector(`#tabContent-${abaAtual} .btn-add-servico`);
+            if (btnAdd) btnAdd.textContent = '💾 Salvar Alterações';
             servicoEditandoId = id;
         }
 
@@ -1501,7 +1600,7 @@
                     // Aba geral: passa TODOS os registros e flag especial
                     exibirRegistrosGeral(todos);
                 } else {
-                    const registros = todos.filter(r => r.abaId === abaAtual);
+                    const registros = todos.filter(r => String(r.abaId) === String(abaAtual));
                     exibirRegistros(registros);
                 }
             };
@@ -1516,7 +1615,45 @@
 
             if (registros.length === 0) {
                 lista.innerHTML = '<div class="empty-state">Nenhum registro encontrado.</div>';
-                if (totalHorasEl) totalHorasEl.style.display = 'none';
+
+                // Mesmo sem horas, mostra serviços extras se existirem
+                const servicosAba = getServicosAba();
+                if (servicosAba.length > 0 && totalHorasEl) {
+                    const config = localStorage.getItem(`config_aba_${abaAtual}`);
+                    let valorVale = 0, saldoAnterior = 0;
+                    if (config) {
+                        const d = JSON.parse(config);
+                        valorVale = parseFloat(d.valorVale) || 0;
+                        saldoAnterior = parseFloat(d.saldoAnterior) || 0;
+                    }
+                    let totalServicos = servicosAba.reduce((s, x) => s + x.valor, 0);
+                    const valorLiquido = totalServicos + saldoAnterior - valorVale;
+
+                    totalHorasEl.style.display = 'block';
+                    totalHorasEl.innerHTML = `
+            <div class="summary-label">Total acumulado</div>
+            <div class="summary-main">00:00 <span style="font-size:0.65em;font-weight:400;color:var(--text-secondary)">0 dias</span></div>
+            <div class="summary-grid">
+                <div class="summary-chip chip-green">
+                    <div class="chip-label">Serviços Extras</div>
+                    <div class="chip-val">R$ ${totalServicos.toFixed(2)}</div>
+                </div>
+                ${valorVale > 0 ? `<div class="summary-chip chip-red">
+                    <div class="chip-label">Adiantamento</div>
+                    <div class="chip-val">− R$ ${valorVale.toFixed(2)}</div>
+                </div>` : ''}
+                ${saldoAnterior !== 0 ? `<div class="summary-chip chip-blue">
+                    <div class="chip-label">Saldo Anterior</div>
+                    <div class="chip-val">${saldoAnterior > 0 ? '+' : ''}R$ ${Math.abs(saldoAnterior).toFixed(2)}</div>
+                </div>` : ''}
+            </div>
+            <div class="liquido-highlight">
+                <span class="liq-label">Valor Líquido Final</span>
+                <span class="liq-val">R$ ${valorLiquido.toFixed(2)}</span>
+            </div>`;
+                } else {
+                    if (totalHorasEl) totalHorasEl.style.display = 'none';
+                }
                 return;
             }
 
@@ -1634,8 +1771,11 @@
 
             // Percorre cada aba de cliente
             abas.filter(a => a.id !== 0).forEach(aba => {
-                const registrosCliente = todosRegistros.filter(r => r.abaId === aba.id);
-                if (registrosCliente.length === 0) return;
+                const registrosCliente = todosRegistros.filter(r => String(r.abaId) === String(aba.id));
+                const servicosCliente = Array.isArray(servicos[String(aba.id)]) ? servicos[String(aba.id)] : [];
+
+                // Mostra o cliente se tiver registros OU serviços extras
+                if (registrosCliente.length === 0 && servicosCliente.length === 0) return;
 
                 const config = localStorage.getItem(`config_aba_${aba.id}`);
                 let valorHora = 0, valorVale = 0, saldoAnterior = 0;
@@ -1646,10 +1786,9 @@
                     saldoAnterior = parseFloat(d.saldoAnterior) || 0;
                 }
 
-                const servicosCliente = Array.isArray(servicos[String(aba.id)]) ? servicos[String(aba.id)] : [];
-                let totalServicosCliente = servicosCliente.reduce((s, x) => s + x.valor, 0);
                 let totalMinutosCliente = registrosCliente.reduce((s, r) => s + r.totalMinutos, 0);
                 let valorHorasCliente = (totalMinutosCliente / 60) * valorHora;
+                let totalServicosCliente = servicosCliente.reduce((s, x) => s + x.valor, 0);
                 let totalReceberCliente = valorHorasCliente + totalServicosCliente;
                 let liquidoCliente = totalReceberCliente + saldoAnterior - valorVale;
 
@@ -1663,7 +1802,7 @@
 
                 // Cabeçalho do cliente
                 htmlGlobal += `
-        <div style="margin-bottom:8px; margin-top:18px;">
+            <div style="margin-bottom:8px; margin-top:18px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);"></div>
@@ -1712,7 +1851,7 @@
                 ${saldoAnterior !== 0 ? `<span style="color:var(--accent);">± Saldo: <strong>R$ ${saldoAnterior.toFixed(2)}</strong></span>` : ''}
                 <span style="margin-left:auto;font-weight:700;color:var(--accent);">Total a receber: R$ ${liquidoCliente.toFixed(2)}</span>
             </div>
-        </div>`;
+            </div>`;
             });
 
             lista.innerHTML = htmlGlobal || '<div class="empty-state">Adicione clientes para ver o resumo aqui.</div>';
@@ -1757,17 +1896,49 @@
 
         function limparTodos() {
             const nomeAba = abas.find(a => a.id === abaAtual)?.nome || 'Geral';
-            if (!confirm(`Deseja realmente deletar TODOS os registros da aba "${nomeAba}"?`)) return;
+            if (!confirm(`Deseja realmente deletar TODOS os registros, serviços e configurações da aba "${nomeAba}"?`)) return;
+
+            // 1. Limpa registros de horas no IndexedDB
             const transaction = db.transaction(['registros'], 'readwrite');
             const objectStore = transaction.objectStore('registros');
             const req = objectStore.openCursor();
             req.onsuccess = function (event) {
                 const cursor = event.target.result;
                 if (cursor) {
-                    if (cursor.value.abaId === abaAtual || (!cursor.value.abaId && abaAtual === 0)) objectStore.delete(cursor.primaryKey);
+                    if (String(cursor.value.abaId) === String(abaAtual)) {
+                        objectStore.delete(cursor.primaryKey);
+                    }
                     cursor.continue();
-                } else { carregarRegistros(); alert('Todos os registros foram deletados!'); }
+                } else {
+                    carregarRegistros();
+                }
             };
+
+            // 2. Limpa serviços extras
+            setServicosAba([]);
+            salvarServicos();
+            exibirServicos();
+
+            // 3. Limpa configurações financeiras (valor hora, adiantamento, saldo)
+            localStorage.removeItem(`config_aba_${abaAtual}`);
+
+            // 4. Limpa os inputs visuais na tela
+            const inputs = ['valorHora', 'valorVale', 'saldoAnterior', 'entrada', 'saida'];
+            inputs.forEach(cls => {
+                const el = document.querySelector(`.${cls}[data-aba="${abaAtual}"]`);
+                if (el) el.value = '';
+            });
+            // Restaura defaults de almoço e café
+            const almoco = document.querySelector(`.almoco[data-aba="${abaAtual}"]`);
+            const cafe = document.querySelector(`.cafe[data-aba="${abaAtual}"]`);
+            if (almoco) almoco.value = '01:00';
+            if (cafe) cafe.value = '00:15';
+
+            // 5. Esconde o resumo financeiro
+            const totalHorasEl = document.getElementById(`totalHoras-${abaAtual}`);
+            if (totalHorasEl) totalHorasEl.style.display = 'none';
+
+            alert('Tudo limpo com sucesso!');
         }
 
         function exportarTXT() {
