@@ -1080,7 +1080,7 @@
                                 <div class="form-group">
                                     <label for="cafe-0">Intervalo Café</label>
                                     <input id="cafe-0" name="cafe-0" type="time" class="cafe" data-aba="0"
-                                        value="00:15">
+                                        value="00:10">
                                 </div>
                             </div>
                         </div>
@@ -1578,7 +1578,7 @@
             const almoco = (saidaAlmoco && retornoAlmoco)
                 ? minutesToTime(timeToMinutes(retornoAlmoco) - timeToMinutes(saidaAlmoco))
                 : '01:00';
-            const cafe = g('cafe')?.value || '00:15';
+            const cafe = g('cafe')?.value || '00:10';
 
             if (!data || !entrada || !saida) { alert('Por favor, preencha todos os campos obrigatórios!'); return; }
 
@@ -1948,7 +1948,7 @@
             const almoco = document.querySelector(`.almoco[data-aba="${abaAtual}"]`);
             const cafe = document.querySelector(`.cafe[data-aba="${abaAtual}"]`);
             if (almoco) almoco.value = '01:00';
-            if (cafe) cafe.value = '00:15';
+            if (cafe) cafe.value = '00:10';
 
             // 5. Esconde o resumo financeiro
             const totalHorasEl = document.getElementById(`totalHoras-${abaAtual}`);
