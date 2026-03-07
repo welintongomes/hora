@@ -846,7 +846,7 @@
 
             .modal-content {
                 padding: 22px;
-                margin: 15% auto;
+                margin: 9% auto;
             }
 
             .tab {
@@ -1694,7 +1694,7 @@
                 div.innerHTML = `
                     <div class="registro-info">
                         <div class="registro-data">${new Date(reg.data + 'T00:00:00').toLocaleDateString('pt-BR')} · ${reg.diaSemana}</div>
-                        <div class="registro-detalhes">Entrada ${reg.entrada} · Saída ${reg.saida} · Almoço ${reg.almoco} · Café ${reg.cafe}</div>
+                        <div class="registro-detalhes">Entrada ${reg.entrada} · Saída ${reg.saida} · Almoço ${reg.saidaAlmoco || '--:--'} às ${reg.retornoAlmoco || '--:--'}  Almoço ${reg.almoco} · Café ${reg.cafe}</div>
                         ${valorHora > 0 ? `<div class="registro-detalhes green-val">R$ ${valorDia.toFixed(2)}</div>` : ''}
                     </div>
                     <div class="registro-horas">${reg.horasTrabalhadas}</div>
