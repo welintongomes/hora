@@ -1068,9 +1068,14 @@
                                     <input id="saida-0" name="saida-0" type="time" class="saida" data-aba="0" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="almoco-0">Intervalo Almoço</label>
-                                    <input id="almoco-0" name="almoco-0" type="time" class="almoco" data-aba="0"
-                                        value="01:00">
+                                    <label for="saidaAlmoco-0">Saída Almoço</label>
+                                    <input id="saidaAlmoco-0" name="saidaAlmoco-0" type="time" class="saidaAlmoco"
+                                        data-aba="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="retornoAlmoco-0">Retorno Almoço</label>
+                                    <input id="retornoAlmoco-0" name="retornoAlmoco-0" type="time" class="retornoAlmoco"
+                                        data-aba="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="cafe-0">Intervalo Café</label>
@@ -1152,8 +1157,12 @@
                     <input type="time" id="editSaida" required>
                 </div>
                 <div class="form-group">
-                    <label>Almoço</label>
-                    <input type="time" id="editAlmoco">
+                    <label>Saída Almoço</label>
+                    <input type="time" id="editSaidaAlmoco">
+                </div>
+                <div class="form-group">
+                    <label>Retorno Almoço</label>
+                    <input type="time" id="editRetornoAlmoco">
                 </div>
                 <div class="form-group">
                     <label>Café</label>
@@ -1403,7 +1412,8 @@
                     set(`.saldoAnterior[data-aba="${aba.id}"]`, dados.saldoAnterior);
                     set(`.entrada[data-aba="${aba.id}"]`, dados.ultimaEntrada);
                     set(`.saida[data-aba="${aba.id}"]`, dados.ultimaSaida);
-                    set(`.almoco[data-aba="${aba.id}"]`, dados.ultimoAlmoco);
+                    set(`.saidaAlmoco[data-aba="${aba.id}"]`, dados.ultimaSaidaAlmoco);
+                    set(`.retornoAlmoco[data-aba="${aba.id}"]`, dados.ultimoRetornoAlmoco);
                     set(`.cafe[data-aba="${aba.id}"]`, dados.ultimoCafe);
                 }
             });
@@ -1413,7 +1423,9 @@
             const g = sel => document.querySelector(`${sel}[data-aba="${idAba}"]`)?.value || '';
             const config = {
                 valorHora: g('.valorHora'), valorVale: g('.valorVale'), saldoAnterior: g('.saldoAnterior'),
-                ultimaEntrada: g('.entrada'), ultimaSaida: g('.saida'), ultimoAlmoco: g('.almoco'), ultimoCafe: g('.cafe')
+                ultimaEntrada: g('.entrada'), ultimaSaida: g('.saida'),
+                ultimaSaidaAlmoco: g('.saidaAlmoco'), ultimoRetornoAlmoco: g('.retornoAlmoco'),
+                ultimoCafe: g('.cafe')
             };
             localStorage.setItem(`config_aba_${idAba}`, JSON.stringify(config));
         }
@@ -1561,7 +1573,11 @@
             const data = g('data')?.value;
             const entrada = g('entrada')?.value;
             const saida = g('saida')?.value;
-            const almoco = g('almoco')?.value || '01:00';
+            const saidaAlmoco = g('saidaAlmoco')?.value;
+            const retornoAlmoco = g('retornoAlmoco')?.value;
+            const almoco = (saidaAlmoco && retornoAlmoco)
+                ? minutesToTime(timeToMinutes(retornoAlmoco) - timeToMinutes(saidaAlmoco))
+                : '01:00';
             const cafe = g('cafe')?.value || '00:15';
 
             if (!data || !entrada || !saida) { alert('Por favor, preencha todos os campos obrigatórios!'); return; }
@@ -1574,8 +1590,8 @@
             const horasFormatadas = minutesToTime(horasTrabalhadas);
             const diaSemana = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
 
-            salvarRegistro({ abaId: abaAtual, data, diaSemana, entrada, saida, almoco, cafe, horasTrabalhadas: horasFormatadas, totalMinutos: horasTrabalhadas });
 
+            salvarRegistro({ abaId: abaAtual, data, diaSemana, entrada, saida, almoco, cafe, saidaAlmoco: saidaAlmoco || '', retornoAlmoco: retornoAlmoco || '', horasTrabalhadas: horasFormatadas, totalMinutos: horasTrabalhadas });
             const resultado = document.getElementById(`resultado-${abaAtual}`);
             if (resultado) {
                 resultado.style.display = 'block';
@@ -2163,7 +2179,8 @@
                     document.getElementById('editData').value = r.data;
                     document.getElementById('editEntrada').value = r.entrada;
                     document.getElementById('editSaida').value = r.saida;
-                    document.getElementById('editAlmoco').value = r.almoco;
+                    document.getElementById('editSaidaAlmoco').value = r.saidaAlmoco || '';
+                    document.getElementById('editRetornoAlmoco').value = r.retornoAlmoco || '';
                     document.getElementById('editCafe').value = r.cafe;
                     document.getElementById('modalEdicao').style.display = 'block';
                 }
@@ -2179,7 +2196,11 @@
             const data = document.getElementById('editData').value;
             const entrada = document.getElementById('editEntrada').value;
             const saida = document.getElementById('editSaida').value;
-            const almoco = document.getElementById('editAlmoco').value;
+            const saidaAlmoco = document.getElementById('editSaidaAlmoco').value;
+            const retornoAlmoco = document.getElementById('editRetornoAlmoco').value;
+            const almoco = (saidaAlmoco && retornoAlmoco)
+                ? minutesToTime(timeToMinutes(retornoAlmoco) - timeToMinutes(saidaAlmoco))
+                : '01:00';
             const cafe = document.getElementById('editCafe').value;
 
             if (!data || !entrada || !saida) { alert('Por favor, preencha todos os campos obrigatórios!'); return; }
@@ -2191,7 +2212,7 @@
             const diaSemana = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
 
             const transaction = db.transaction(['registros'], 'readwrite');
-            transaction.objectStore('registros').put({ id: registroEditandoId, abaId: abaAtual, data, diaSemana, entrada, saida, almoco, cafe, horasTrabalhadas: horasFormatadas, totalMinutos: horasTrabalhadas }).onsuccess = function () {
+            transaction.objectStore('registros').put({ id: registroEditandoId, abaId: abaAtual, data, diaSemana, entrada, saida, almoco, saidaAlmoco, retornoAlmoco, cafe, horasTrabalhadas: horasFormatadas, totalMinutos: horasTrabalhadas }).onsuccess = function () {
                 fecharModal(); carregarRegistros(); alert('Registro atualizado com sucesso!');
             };
         }
