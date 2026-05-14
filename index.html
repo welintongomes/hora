@@ -956,12 +956,12 @@
         <!-- Aba Geral -->
         <div class="tab-content active" id="tabContent-0">
 
-            <!-- Configurações Financeiras -->
+           <!-- Configurações e Padrões -->
             <div class="card" id="card-input-finance">
                 <div class="card-header" onclick="toggleCard('finance-0')">
                     <div class="card-header-left">
-                        <div class="card-icon icon-blue">💰</div>
-                        <span class="card-title">Configurações Financeiras</span>
+                        <div class="card-icon icon-blue">⚙️</div>
+                        <span class="card-title">Configurações e Padrões</span>
                     </div>
                     <svg class="card-chevron expanded" id="chevron-finance-0" viewBox="0 0 20 20" fill="none"
                         stroke="currentColor" stroke-width="2">
@@ -973,18 +973,45 @@
                     <div class="finance-grid">
                         <div class="finance-item">
                             <label for="valorHora-0">Valor Hora (R$)</label>
-                            <input id="valorHora-0" name="valorHora-0" type="number" class="valorHora" data-aba="0"
-                                step="0.01" min="0" placeholder="0,00">
+                            <input id="valorHora-0" name="valorHora-0" type="number" class="valorHora" data-aba="0" step="0.01" min="0" placeholder="0,00">
                         </div>
                         <div class="finance-item">
                             <label for="valorVale-0">Adiantamento (R$)</label>
-                            <input id="valorVale-0" name="valorVale-0" type="number" class="valorVale" data-aba="0"
-                                step="0.01" min="0" placeholder="0,00">
+                            <input id="valorVale-0" name="valorVale-0" type="number" class="valorVale" data-aba="0" step="0.01" min="0" placeholder="0,00">
                         </div>
                         <div class="finance-item">
                             <label for="saldoAnterior-0">Saldo ± (R$)</label>
-                            <input id="saldoAnterior-0" name="saldoAnterior-0" type="number" class="saldoAnterior"
-                                data-aba="0" step="0.01" placeholder="0,00">
+                            <input id="saldoAnterior-0" name="saldoAnterior-0" type="number" class="saldoAnterior" data-aba="0" step="0.01" placeholder="0,00">
+                        </div>
+                    </div>
+                    
+                    <div class="divider" style="margin-top: 5px; margin-bottom: 5px;"></div>
+                    <div style="padding: 10px 22px 0;">
+                        <span class="summary-label">Padrões de Horário (Preenchimento Automático)</span>
+                    </div>
+                    <div class="finance-grid">
+                        <div class="finance-item">
+                            <label for="padraoEntrada-0">Entrada</label>
+                            <input id="padraoEntrada-0" type="time" class="padraoEntrada" data-aba="0">
+                        </div>
+                        <div class="finance-item">
+                            <label for="padraoSaida-0">Saída</label>
+                            <input id="padraoSaida-0" type="time" class="padraoSaida" data-aba="0">
+                        </div>
+                        <div class="finance-item">
+                            <label for="padraoSaidaAlmoco-0">Saída Almoço</label>
+                            <input id="padraoSaidaAlmoco-0" type="time" class="padraoSaidaAlmoco" data-aba="0">
+                        </div>
+                        <div class="finance-item">
+                            <label for="padraoRetornoAlmoco-0">Ret. Almoço</label>
+                            <input id="padraoRetornoAlmoco-0" type="time" class="padraoRetornoAlmoco" data-aba="0">
+                        </div>
+                        <div class="finance-item">
+                            <label for="padraoCafe-0">Café</label>
+                            <input id="padraoCafe-0" type="time" class="padraoCafe" data-aba="0" value="00:10">
+                        </div>
+                        <div class="finance-item" style="display: flex; align-items: flex-end;">
+                            <button class="btn-ghost btn-sm" style="width: 100%; height: 38px;" onclick="aplicarPadrao()">Usar Padrão</button>
                         </div>
                     </div>
                 </div>
@@ -1346,6 +1373,7 @@
             adicionarListenersAba(idAba);
         }
 
+
         function adicionarListenersAba(idAba) {
             const onChange = () => { salvarConfiguracoesAba(idAba); carregarRegistros(); };
             const vh = document.querySelector(`.valorHora[data-aba="${idAba}"]`);
@@ -1354,8 +1382,17 @@
             if (vh) vh.addEventListener('change', onChange);
             if (vv) vv.addEventListener('change', onChange);
             if (sa) sa.addEventListener('change', onChange);
-        }
 
+            // Escuta se o usuário digitar um novo padrão para já salvar e preencher na hora
+            const padroes = ['.padraoEntrada', '.padraoSaida', '.padraoSaidaAlmoco', '.padraoRetornoAlmoco', '.padraoCafe'];
+            padroes.forEach(sel => {
+                const el = document.querySelector(`${sel}[data-aba="${idAba}"]`);
+                if (el) el.addEventListener('change', () => {
+                    salvarConfiguracoesAba(idAba);
+                    aplicarPadrao(); 
+                });
+            });
+        }
         function selecionarAba(idAba) {
             abaAtual = idAba;
             document.querySelectorAll('.tab').forEach(tab => {
@@ -1401,7 +1438,7 @@
             document.querySelectorAll('.data').forEach(input => { input.valueAsDate = new Date(); });
         });
 
-        function carregarUltimosValores() {
+function carregarUltimosValores() {
             abas.forEach(aba => {
                 const config = localStorage.getItem(`config_aba_${aba.id}`);
                 if (config) {
@@ -1410,22 +1447,32 @@
                     set(`.valorHora[data-aba="${aba.id}"]`, dados.valorHora);
                     set(`.valorVale[data-aba="${aba.id}"]`, dados.valorVale);
                     set(`.saldoAnterior[data-aba="${aba.id}"]`, dados.saldoAnterior);
-                    set(`.entrada[data-aba="${aba.id}"]`, dados.ultimaEntrada);
-                    set(`.saida[data-aba="${aba.id}"]`, dados.ultimaSaida);
-                    set(`.saidaAlmoco[data-aba="${aba.id}"]`, dados.ultimaSaidaAlmoco);
-                    set(`.retornoAlmoco[data-aba="${aba.id}"]`, dados.ultimoRetornoAlmoco);
-                    set(`.cafe[data-aba="${aba.id}"]`, dados.ultimoCafe);
+                    
+                    // Preenche os campos de Padrão
+                    set(`.padraoEntrada[data-aba="${aba.id}"]`, dados.padraoEntrada);
+                    set(`.padraoSaida[data-aba="${aba.id}"]`, dados.padraoSaida);
+                    set(`.padraoSaidaAlmoco[data-aba="${aba.id}"]`, dados.padraoSaidaAlmoco);
+                    set(`.padraoRetornoAlmoco[data-aba="${aba.id}"]`, dados.padraoRetornoAlmoco);
+                    set(`.padraoCafe[data-aba="${aba.id}"]`, dados.padraoCafe || '00:10');
+
+                    // Magia: Preenche o formulário do Novo Dia automaticamente com o padrão salvo ao abrir a página!
+                    set(`.entrada[data-aba="${aba.id}"]`, dados.padraoEntrada);
+                    set(`.saida[data-aba="${aba.id}"]`, dados.padraoSaida);
+                    set(`.saidaAlmoco[data-aba="${aba.id}"]`, dados.padraoSaidaAlmoco);
+                    set(`.retornoAlmoco[data-aba="${aba.id}"]`, dados.padraoRetornoAlmoco);
+                    set(`.cafe[data-aba="${aba.id}"]`, dados.padraoCafe || '00:10');
                 }
             });
         }
 
-        function salvarConfiguracoesAba(idAba) {
+function salvarConfiguracoesAba(idAba) {
             const g = sel => document.querySelector(`${sel}[data-aba="${idAba}"]`)?.value || '';
             const config = {
                 valorHora: g('.valorHora'), valorVale: g('.valorVale'), saldoAnterior: g('.saldoAnterior'),
-                ultimaEntrada: g('.entrada'), ultimaSaida: g('.saida'),
-                ultimaSaidaAlmoco: g('.saidaAlmoco'), ultimoRetornoAlmoco: g('.retornoAlmoco'),
-                ultimoCafe: g('.cafe')
+                // Salva os padrões que digitamos
+                padraoEntrada: g('.padraoEntrada'), padraoSaida: g('.padraoSaida'),
+                padraoSaidaAlmoco: g('.padraoSaidaAlmoco'), padraoRetornoAlmoco: g('.padraoRetornoAlmoco'),
+                padraoCafe: g('.padraoCafe')
             };
             localStorage.setItem(`config_aba_${idAba}`, JSON.stringify(config));
         }
@@ -1577,7 +1624,7 @@
             const retornoAlmoco = g('retornoAlmoco')?.value;
             const almoco = (saidaAlmoco && retornoAlmoco)
                 ? minutesToTime(timeToMinutes(retornoAlmoco) - timeToMinutes(saidaAlmoco))
-                : '01:00';
+                : '00:00';
             const cafe = g('cafe')?.value || '00:10';
 
             if (!data || !entrada || !saida) { alert('Por favor, preencha todos os campos obrigatórios!'); return; }
@@ -1592,6 +1639,8 @@
 
 
             salvarRegistro({ abaId: abaAtual, data, diaSemana, entrada, saida, almoco, cafe, saidaAlmoco: saidaAlmoco || '', retornoAlmoco: retornoAlmoco || '', horasTrabalhadas: horasFormatadas, totalMinutos: horasTrabalhadas });
+            // Recarrega o form com os padrões logo após salvar o dia
+            aplicarPadrao();
             const resultado = document.getElementById(`resultado-${abaAtual}`);
             if (resultado) {
                 resultado.style.display = 'block';
@@ -2191,7 +2240,16 @@
             document.getElementById('modalEdicao').style.display = 'none';
             registroEditandoId = null;
         }
+function aplicarPadrao() {
+            const set = (sel, val) => { const el = document.querySelector(`${sel}[data-aba="${abaAtual}"]`); if (el && val) el.value = val; };
+            const g = sel => document.querySelector(`${sel}[data-aba="${abaAtual}"]`)?.value || '';
 
+            set('.entrada', g('.padraoEntrada'));
+            set('.saida', g('.padraoSaida'));
+            set('.saidaAlmoco', g('.padraoSaidaAlmoco'));
+            set('.retornoAlmoco', g('.padraoRetornoAlmoco'));
+            set('.cafe', g('.padraoCafe'));
+        }
         function salvarEdicao() {
             const data = document.getElementById('editData').value;
             const entrada = document.getElementById('editEntrada').value;
@@ -2200,7 +2258,7 @@
             const retornoAlmoco = document.getElementById('editRetornoAlmoco').value;
             const almoco = (saidaAlmoco && retornoAlmoco)
                 ? minutesToTime(timeToMinutes(retornoAlmoco) - timeToMinutes(saidaAlmoco))
-                : '01:00';
+                : '00:00';
             const cafe = document.getElementById('editCafe').value;
 
             if (!data || !entrada || !saida) { alert('Por favor, preencha todos os campos obrigatórios!'); return; }
